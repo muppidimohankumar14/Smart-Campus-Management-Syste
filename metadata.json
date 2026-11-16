@@ -1,0 +1,6 @@
+{
+  "name": "CampusCore Student Management System",
+  "description": "A modern college administration and student records management dashboard with persistent LocalStorage storage, search, CRUD operations, and dark/light theme support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
