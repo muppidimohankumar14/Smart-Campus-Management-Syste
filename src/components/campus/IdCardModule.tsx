@@ -50,7 +50,7 @@ export function IdCardModule({ user, onNotify }: IdCardModuleProps) {
       return;
     }
     const payload = JSON.stringify({
-      institution: 'SMART CAMPUS',
+      institution: 'NANI CAMPUS',
       studentId: activeStudent.studentId,
       name: activeStudent.fullName,
       course: activeStudent.course,
@@ -146,13 +146,13 @@ export function IdCardModule({ user, onNotify }: IdCardModuleProps) {
               <div className="flex items-center gap-3">
                 <img
                   src="/src/assets/images/smart_campus_crest_1794839688853.jpg"
-                  alt="SMART CAMPUS Logo"
+                  alt="NANI CAMPUS Logo"
                   referrerPolicy="no-referrer"
                   className="h-10 w-10 rounded-lg object-cover ring-1 ring-white/25"
                 />
                 <div>
                   <h2 className="font-display text-base font-bold tracking-wide">
-                    SMART CAMPUS
+                    NANI CAMPUS
                   </h2>
                   <p className="text-[11px] text-blue-200">
                     Northbridge Institute of Technology
@@ -206,7 +206,7 @@ export function IdCardModule({ user, onNotify }: IdCardModuleProps) {
                   </p>
                   <p className="flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
-                    <span>registrar@smartcampus.edu</span>
+                    <span>registrar@nanicampus.edu</span>
                   </p>
                   <p className="flex items-center gap-1.5 font-mono">
                     <Phone className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />

@@ -59,7 +59,7 @@ export function ReportsModule({ onNotify }: ReportsModuleProps) {
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
     if (!report) return;
-    const baseName = `smart-campus-${selectedType}-report`;
+    const baseName = `nani-campus-${selectedType}-report`;
     if (format === 'csv') {
       downloadCsvReport(baseName, report.columns, report.rows);
       onNotify('success', 'CSV Exported', `${baseName}.csv downloaded.`);

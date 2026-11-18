@@ -6,8 +6,8 @@ import { buildInitialDatabaseSeed } from './seedData';
 import { ActivityLog, DatabasePayload, UserRole } from '../src/types/campus';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'smartcampus.json');
-const MONGO_STATE_KEY = 'smart_campus_primary';
+const DATA_FILE = path.join(DATA_DIR, 'nanicampus.json');
+const MONGO_STATE_KEY = 'nani_campus_primary';
 
 let cachedDb: DatabasePayload | null = null;
 let mongoConnected = false;
@@ -30,11 +30,11 @@ export async function initDatabase(): Promise<{ mode: 'mongodb' | 'file' }> {
           updatedAt: new Date().toISOString(),
         });
       }
-      console.log('[SMART CAMPUS DB] Connected to MongoDB.');
+      console.log('[NANI CAMPUS DB] Connected to MongoDB.');
       return { mode: 'mongodb' };
     } catch (err) {
       console.warn(
-        '[SMART CAMPUS DB] MongoDB connection failed, falling back to local persistent document store:',
+        '[NANI CAMPUS DB] MongoDB connection failed, falling back to local persistent document store:',
         err instanceof Error ? err.message : String(err)
       );
       mongoConnected = false;
@@ -58,7 +58,7 @@ export async function initDatabase(): Promise<{ mode: 'mongodb' | 'file' }> {
     fs.writeFileSync(DATA_FILE, JSON.stringify(cachedDb, null, 2), 'utf-8');
   }
 
-  console.log('[SMART CAMPUS DB] Using persistent file store at data/smartcampus.json');
+  console.log('[NANI CAMPUS DB] Using persistent file store at data/nanicampus.json');
   return { mode: 'file' };
 }
 
@@ -86,7 +86,7 @@ export async function saveDb(nextDb?: DatabasePayload): Promise<void> {
         { upsert: true }
       );
     } catch (err) {
-      console.error('[SMART CAMPUS DB] MongoDB save error:', err);
+      console.error('[NANI CAMPUS DB] MongoDB save error:', err);
     }
   }
 
@@ -96,7 +96,7 @@ export async function saveDb(nextDb?: DatabasePayload): Promise<void> {
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(cachedDb, null, 2), 'utf-8');
   } catch (err) {
-    console.error('[SMART CAMPUS DB] File persistence error:', err);
+    console.error('[NANI CAMPUS DB] File persistence error:', err);
   }
 }
 

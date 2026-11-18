@@ -125,7 +125,7 @@ export default function App() {
     setUser(null);
     setActiveModule('dashboard');
     setUnreadNotifications(0);
-    addToast('info', 'Signed Out', 'Your SMART CAMPUS session has ended.');
+    addToast('info', 'Signed Out', 'Your NANI CAMPUS session has ended.');
   };
 
   const handleToggleTheme = (explicit?: 'light' | 'dark') => {
@@ -137,7 +137,7 @@ export default function App() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
         <div className="text-center">
           <p className="font-display text-lg font-bold text-[#0B1F3A] dark:text-white">
-            SMART CAMPUS
+            NANI CAMPUS
           </p>
           <p className="mt-1 text-xs text-slate-500">Verifying session...</p>
         </div>

@@ -16,7 +16,7 @@ async function bootstrap() {
   app.get('/api/health', (_req, res) => {
     res.json({
       status: 'ok',
-      service: 'SMART CAMPUS API',
+      service: 'NANI CAMPUS API',
       databaseMode: isMongoMode() ? 'mongodb' : dbInfo.mode,
     });
   });
@@ -45,11 +45,11 @@ async function bootstrap() {
 
   const port = Number(process.env.PORT) || 3000;
   app.listen(port, '0.0.0.0', () => {
-    console.log(`[SMART CAMPUS] Server listening on http://0.0.0.0:${port}`);
+    console.log(`[NANI CAMPUS] Server listening on http://0.0.0.0:${port}`);
   });
 }
 
 bootstrap().catch((err) => {
-  console.error('[SMART CAMPUS] Fatal startup error:', err);
+  console.error('[NANI CAMPUS] Fatal startup error:', err);
   process.exit(1);
 });

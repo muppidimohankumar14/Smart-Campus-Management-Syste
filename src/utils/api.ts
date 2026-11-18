@@ -1,5 +1,5 @@
-const TOKEN_KEY = 'smartcampus_auth_token_v1';
-const THEME_KEY = 'smartcampus_theme_v1';
+const TOKEN_KEY = 'nanicampus_auth_token_v1';
+const THEME_KEY = 'nanicampus_theme_v1';
 
 export function getStoredToken(): string | null {
   try {
