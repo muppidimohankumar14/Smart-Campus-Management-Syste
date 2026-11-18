@@ -70,7 +70,7 @@ export function downloadPdfReport(
   doc.rect(0, 0, doc.internal.pageSize.getWidth(), 24, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(14);
-  doc.text('NANI CAMPUS — College Management System', 14, 11);
+  doc.text('SMART CAMPUS — College Management System', 14, 11);
   doc.setFontSize(10);
   doc.text(title, 14, 18);
 
@@ -96,7 +96,7 @@ export function downloadMarksheetPdf(result: ExamResultRecord): void {
   doc.rect(0, 0, 210, 32, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
-  doc.text('NANI CAMPUS INSTITUTE OF TECHNOLOGY', 14, 13);
+  doc.text('SMART CAMPUS INSTITUTE OF TECHNOLOGY', 14, 13);
   doc.setFontSize(10);
   doc.text('OFFICIAL STATEMENT OF MARKS', 14, 21);
   doc.setFontSize(9);
@@ -155,7 +155,7 @@ export function downloadMarksheetPdf(result: ExamResultRecord): void {
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
   doc.text(
-    'Controller of Examinations · NANI CAMPUS Digital Transcript',
+    'Controller of Examinations · SMART CAMPUS Digital Transcript',
     14,
     280
   );
@@ -172,7 +172,7 @@ export function downloadIdCardPdf(
   doc.rect(0, 0, 88, 14, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(8.5);
-  doc.text('NANI CAMPUS', 5, 6.5);
+  doc.text('SMART CAMPUS', 5, 6.5);
   doc.setFontSize(6);
   doc.setTextColor(191, 219, 254);
   doc.text('STUDENT IDENTITY CARD', 5, 11);
@@ -191,7 +191,7 @@ export function downloadIdCardPdf(
   doc.text(`Sem ${student.semester} · Section ${student.section}`, 5, 45);
   doc.setFontSize(5.8);
   doc.setTextColor(100, 116, 139);
-  doc.text('registrar@nanicampus.edu · +1 (415) 800-1000', 5, 52);
+  doc.text('registrar@smartcampus.edu · +1 (415) 800-1000', 5, 52);
 
   if (qrDataUrl) {
     doc.addImage(qrDataUrl, 'PNG', 63, 21, 20, 20);

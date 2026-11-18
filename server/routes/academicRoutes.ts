@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { NextFunction, Response, Router } from 'express';
 import { appendActivity, getDb, saveDb } from '../db';
 import {
   AuthenticatedRequest,
@@ -14,6 +14,18 @@ import {
 } from '../../src/types/campus';
 
 const router = Router();
+
+const asyncHandler =
+  (
+    fn: (
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+    ) => Promise<void> | void
+  ) =>
+  (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 
 // 1. Dashboard Overview (Role-Aware)
 router.get('/dashboard', authenticateToken, (req: AuthenticatedRequest, res) => {
@@ -223,7 +235,7 @@ router.post(
   '/students',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const body = req.body as Partial<StudentRecord>;
     const cleanId = (body.studentId || '').trim().toUpperCase();
     const cleanName = (body.fullName || '').trim();
@@ -291,14 +303,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ student: record });
-  }
+  })
 );
 
 router.put(
   '/students/:studentId',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const originalId = req.params.studentId.toUpperCase();
     const db = getDb();
     const index = db.students.findIndex(
@@ -353,14 +365,14 @@ router.put(
     );
     await saveDb();
     res.json({ student: updated });
-  }
+  })
 );
 
 router.delete(
   '/students/:studentId',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetId = req.params.studentId.toUpperCase();
     const permanent = req.query.permanent === 'true';
     const db = getDb();
@@ -398,14 +410,14 @@ router.delete(
 
     await saveDb();
     res.json({ message: permanent ? 'Student permanently deleted.' : 'Student moved to trash.' });
-  }
+  })
 );
 
 router.post(
   '/students/:studentId/restore',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetId = req.params.studentId.toUpperCase();
     const db = getDb();
     const index = db.students.findIndex(
@@ -430,7 +442,7 @@ router.post(
     );
     await saveDb();
     res.json({ student: db.students[index] });
-  }
+  })
 );
 
 // 3. Courses Management
@@ -459,7 +471,7 @@ router.post(
   '/courses',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const body = req.body as Partial<CourseRecord>;
     const code = (body.courseCode || '').trim().toUpperCase();
     const name = (body.courseName || '').trim();
@@ -499,14 +511,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ course });
-  }
+  })
 );
 
 router.put(
   '/courses/:courseCode',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetCode = req.params.courseCode.toUpperCase();
     const db = getDb();
     const idx = db.courses.findIndex(
@@ -538,14 +550,14 @@ router.put(
     );
     await saveDb();
     res.json({ course: db.courses[idx] });
-  }
+  })
 );
 
 router.delete(
   '/courses/:courseCode',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetCode = req.params.courseCode.toUpperCase();
     const db = getDb();
     const before = db.courses.length;
@@ -564,7 +576,7 @@ router.delete(
     );
     await saveDb();
     res.json({ message: 'Course deleted.' });
-  }
+  })
 );
 
 // 4. Classrooms Management
@@ -590,7 +602,7 @@ router.post(
   '/classrooms',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const body = req.body as Partial<ClassroomRecord>;
     const classroomId = (body.classroomId || '').trim().toUpperCase();
     const roomNumber = (body.roomNumber || '').trim().toUpperCase();
@@ -655,14 +667,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ classroom: room });
-  }
+  })
 );
 
 router.put(
   '/classrooms/:classroomId',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetId = req.params.classroomId.toUpperCase();
     const db = getDb();
     const idx = db.classrooms.findIndex(
@@ -689,14 +701,14 @@ router.put(
     );
     await saveDb();
     res.json({ classroom: db.classrooms[idx] });
-  }
+  })
 );
 
 router.delete(
   '/classrooms/:classroomId',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const targetId = req.params.classroomId.toUpperCase();
     const db = getDb();
     const before = db.classrooms.length;
@@ -715,7 +727,7 @@ router.delete(
     );
     await saveDb();
     res.json({ message: 'Classroom deleted.' });
-  }
+  })
 );
 
 // 5. Attendance Management
@@ -784,7 +796,7 @@ router.post(
   '/attendance/mark',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { date, course, entries } = req.body as {
       date?: string;
       course?: string;
@@ -854,7 +866,7 @@ router.post(
     );
     await saveDb();
     res.json({ message: 'Attendance saved successfully.' });
-  }
+  })
 );
 
 export default router;

@@ -7,7 +7,7 @@
       "email": "registrar@smartcampus.edu",
       "phone": "+1 (415) 800-1001",
       "role": "ADMIN",
-      "passwordHash": "$2b$10$9t3gRwViuktqz0oKPLJvIev9xRosTOToEk5FvV/KVorCu5nyGgSna",
+      "passwordHash": "$2b$10$133Z0v9XNPhP3Yaw0GaAR.kgw8ud.YQr4/5NUZsBH1w9tpN5zE69.",
       "approved": true,
       "createdAt": "2026-07-01T09:00:00.000Z",
       "updatedAt": "2026-11-16T08:00:00.000Z"
@@ -21,7 +21,7 @@
       "role": "STUDENT",
       "studentId": "STU202601",
       "course": "B.Tech Computer Science",
-      "passwordHash": "$2b$10$rtgZVR159pcpYYNDwU8JE.LAf4/9/oHw0MuqlX492GxQcmmXavogO",
+      "passwordHash": "$2b$10$Mn9edWjPI8e1taHjMGuyt.eL2F1zFnpBfDJmWc0JlH8PBC9PXHckS",
       "approved": true,
       "createdAt": "2026-08-05T10:00:00.000Z",
       "updatedAt": "2026-11-16T08:00:00.000Z"
@@ -35,7 +35,7 @@
       "role": "STUDENT",
       "studentId": "STU202602",
       "course": "B.Sc Data Science",
-      "passwordHash": "$2b$10$rtgZVR159pcpYYNDwU8JE.LAf4/9/oHw0MuqlX492GxQcmmXavogO",
+      "passwordHash": "$2b$10$Mn9edWjPI8e1taHjMGuyt.eL2F1zFnpBfDJmWc0JlH8PBC9PXHckS",
       "approved": true,
       "createdAt": "2026-08-06T10:00:00.000Z",
       "updatedAt": "2026-11-16T08:00:00.000Z"
@@ -43,20 +43,20 @@
   ],
   "sessions": [
     {
-      "sessionId": "SES-1794840301436-7cbko7",
+      "sessionId": "SES-1795008549722-3hmc9c",
       "userId": "ADM202601",
       "role": "ADMIN",
       "userAgent": "node",
-      "createdAt": "2026-11-16T14:45:01.436Z",
-      "expiresAt": "2026-11-23T14:45:01.436Z"
+      "createdAt": "2026-11-18T13:29:09.722Z",
+      "expiresAt": "2026-11-25T13:29:09.722Z"
     },
     {
-      "sessionId": "SES-1794840301561-ku53d2",
+      "sessionId": "SES-1795008550023-38lyz1",
       "userId": "STU202601",
       "role": "STUDENT",
       "userAgent": "node",
-      "createdAt": "2026-11-16T14:45:01.561Z",
-      "expiresAt": "2026-11-17T02:45:01.561Z"
+      "createdAt": "2026-11-18T13:29:10.023Z",
+      "expiresAt": "2026-11-19T01:29:10.023Z"
     }
   ],
   "students": [
@@ -977,6 +977,22 @@
     }
   ],
   "activities": [
+    {
+      "id": "ACT-1795008550103-lfxd",
+      "action": "Student Permanently Deleted",
+      "actorName": "Dr. Elena Vance",
+      "actorRole": "ADMIN",
+      "details": "Permanently purged Verification Test Student (STU999999)",
+      "createdAt": "2026-11-18T13:29:10.103Z"
+    },
+    {
+      "id": "ACT-1795008550074-s5qh",
+      "action": "Student Added",
+      "actorName": "Dr. Elena Vance",
+      "actorRole": "ADMIN",
+      "details": "Added student Verification Test Student (STU999999)",
+      "createdAt": "2026-11-18T13:29:10.074Z"
+    },
     {
       "id": "ACT-1",
       "action": "Examination Scheduled",

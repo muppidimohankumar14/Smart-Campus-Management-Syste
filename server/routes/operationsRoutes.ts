@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { NextFunction, Response, Router } from 'express';
 import { appendActivity, getDb, saveDb } from '../db';
 import {
   AuthenticatedRequest,
@@ -17,6 +17,18 @@ import {
 } from '../../src/types/campus';
 
 const router = Router();
+
+const asyncHandler =
+  (
+    fn: (
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+    ) => Promise<void> | void
+  ) =>
+  (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 
 // 1. Timetable Management (Conflict-Safe)
 router.get('/timetable', authenticateToken, (req: AuthenticatedRequest, res) => {
@@ -55,7 +67,7 @@ router.post(
   '/timetable',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const body = req.body as Partial<TimetableEntry>;
     if (
       !body.day ||
@@ -149,14 +161,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ entry });
-  }
+  })
 );
 
 router.put(
   '/timetable/:id',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const db = getDb();
     const idx = db.timetable.findIndex((t) => t.id === id);
@@ -221,14 +233,14 @@ router.put(
     );
     await saveDb();
     res.json({ entry: next });
-  }
+  })
 );
 
 router.delete(
   '/timetable/:id',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const db = getDb();
     const before = db.timetable.length;
@@ -245,7 +257,7 @@ router.delete(
     );
     await saveDb();
     res.json({ message: 'Timetable entry deleted.' });
-  }
+  })
 );
 
 // 2. Course Registrations
@@ -265,7 +277,7 @@ router.get('/registrations', authenticateToken, (req: AuthenticatedRequest, res)
 router.post(
   '/registrations',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { courseCode, studentId: bodyStudentId } = req.body as {
       courseCode?: string;
       studentId?: string;
@@ -357,13 +369,13 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ registration });
-  }
+  })
 );
 
 router.put(
   '/registrations/:id/status',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const { status } = req.body as {
       status?: 'Approved' | 'Rejected' | 'Cancelled';
@@ -410,7 +422,7 @@ router.put(
     );
     await saveDb();
     res.json({ registration: reg });
-  }
+  })
 );
 
 // 3. Examinations Management (Classroom + Timetable conflict checking)
@@ -436,7 +448,7 @@ router.post(
   '/examinations',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const body = req.body as Partial<ExaminationRecord>;
     if (
       !body.examName ||
@@ -521,14 +533,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ examination: exam });
-  }
+  })
 );
 
 router.delete(
   '/examinations/:id',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const db = getDb();
     const before = db.examinations.length;
@@ -545,7 +557,7 @@ router.delete(
     );
     await saveDb();
     res.json({ message: 'Examination removed.' });
-  }
+  })
 );
 
 // 4. Exam Results (Strict unpublished protection for students)
@@ -569,7 +581,7 @@ router.post(
   '/results',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { studentId, semester, examName, subjects, published } = req.body as {
       studentId?: string;
       semester?: number;
@@ -652,14 +664,14 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ result: resultRecord });
-  }
+  })
 );
 
 router.put(
   '/results/:id/publish',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const { published } = req.body as { published?: boolean };
     const db = getDb();
@@ -693,14 +705,14 @@ router.put(
     );
     await saveDb();
     res.json({ result });
-  }
+  })
 );
 
 router.delete(
   '/results/:id',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const db = getDb();
     const before = db.results.length;
@@ -711,7 +723,7 @@ router.delete(
     }
     await saveDb();
     res.json({ message: 'Result deleted.' });
-  }
+  })
 );
 
 // 5. Notifications
@@ -740,7 +752,7 @@ router.post(
   '/notifications',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { title, message, category, targetRole } = req.body as {
       title?: string;
       message?: string;
@@ -772,13 +784,13 @@ router.post(
     );
     await saveDb();
     res.status(201).json({ notification: { ...notification, isRead: false } });
-  }
+  })
 );
 
 router.put(
   '/notifications/read-all',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const db = getDb();
     const userId = req.user!.userId;
     for (const n of db.notifications) {
@@ -788,13 +800,13 @@ router.put(
     }
     await saveDb();
     res.json({ message: 'All notifications marked as read.' });
-  }
+  })
 );
 
 router.put(
   '/notifications/:id/read',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     const db = getDb();
     const notif = db.notifications.find((n) => n.id === id);
@@ -807,7 +819,7 @@ router.put(
     }
     await saveDb();
     res.json({ message: 'Marked as read.' });
-  }
+  })
 );
 
 // 6. Reports Aggregation

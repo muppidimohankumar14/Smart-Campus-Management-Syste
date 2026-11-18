@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { NextFunction, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { appendActivity, getDb, saveDb } from '../db';
 import {
@@ -12,12 +12,17 @@ import { UserAccount } from '../../src/types/campus';
 
 const router = Router();
 
-interface ResetRequestEntry {
-  userId: string;
-  code: string;
-  expiresAt: number;
-}
-const pendingResetCodes = new Map<string, ResetRequestEntry>();
+const asyncHandler =
+  (
+    fn: (
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+    ) => Promise<void> | void
+  ) =>
+  (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 
 function sanitizeUser(user: UserAccount) {
   const { passwordHash: _removed, ...safe } = user;
@@ -107,7 +112,11 @@ router.post('/login', async (req, res) => {
       user: sanitizeUser(user),
       student: linkedStudent,
     });
-  } catch {
+  } catch (err) {
+    console.error(
+      '[SMART CAMPUS AUTH] Login error:',
+      err instanceof Error ? err.message : err
+    );
     res.status(500).json({ error: 'Authentication service failed.' });
   }
 });
@@ -235,117 +244,136 @@ router.post('/register', async (req, res) => {
       message: 'Student account created successfully. You can now sign in.',
       user: sanitizeUser(newUser),
     });
-  } catch {
+  } catch (err) {
+    console.error(
+      '[SMART CAMPUS AUTH] Registration error:',
+      err instanceof Error ? err.message : err
+    );
     res.status(500).json({ error: 'Failed to create account.' });
   }
 });
 
-router.post('/forgot-password/request', async (req, res) => {
-  const { userId, email } = req.body as { userId?: string; email?: string };
-  const cleanId = (userId || '').trim().toUpperCase();
-  const cleanEmail = (email || '').trim().toLowerCase();
+router.post(
+  '/forgot-password/request',
+  asyncHandler(async (req, res) => {
+    const { userId, email } = req.body as { userId?: string; email?: string };
+    const cleanId = (userId || '').trim().toUpperCase();
+    const cleanEmail = (email || '').trim().toLowerCase();
 
-  if (!cleanId || !cleanEmail) {
-    res.status(400).json({ error: 'User ID and registered email are required.' });
-    return;
-  }
+    if (!cleanId || !cleanEmail) {
+      res.status(400).json({ error: 'User ID and registered email are required.' });
+      return;
+    }
 
-  const db = getDb();
-  const user = db.users.find(
-    (u) =>
-      u.userId.toUpperCase() === cleanId &&
-      u.email.toLowerCase() === cleanEmail
-  );
+    const db = getDb();
+    const user = db.users.find(
+      (u) =>
+        u.userId.toUpperCase() === cleanId &&
+        u.email.toLowerCase() === cleanEmail
+    );
 
-  if (!user) {
-    res.status(404).json({
-      error: 'No account found matching that User ID and Email combination.',
+    if (!user) {
+      res.status(404).json({
+        error: 'No account found matching that User ID and Email combination.',
+      });
+      return;
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    if (!db.resetCodes) {
+      db.resetCodes = {};
+    }
+    db.resetCodes[user.userId.toUpperCase()] = {
+      code,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    };
+    await saveDb();
+
+    res.json({
+      message:
+        'Verification code generated. Use the 6-digit security code below to complete your password reset.',
+      verificationCodePreview: code,
+      expiresInMinutes: 10,
     });
-    return;
-  }
+  })
+);
 
-  const code = String(Math.floor(100000 + Math.random() * 900000));
-  pendingResetCodes.set(user.userId.toUpperCase(), {
-    userId: user.userId.toUpperCase(),
-    code,
-    expiresAt: Date.now() + 10 * 60 * 1000,
-  });
+router.post(
+  '/forgot-password/reset',
+  asyncHandler(async (req, res) => {
+    const { userId, code, newPassword, confirmPassword } = req.body as {
+      userId?: string;
+      code?: string;
+      newPassword?: string;
+      confirmPassword?: string;
+    };
 
-  res.json({
-    message:
-      'Verification code generated. Use the 6-digit security code below to complete your password reset.',
-    verificationCodePreview: code,
-    expiresInMinutes: 10,
-  });
-});
+    const cleanId = (userId || '').trim().toUpperCase();
+    const cleanCode = (code || '').trim();
+    const cleanNew = newPassword || '';
+    const cleanConfirm = confirmPassword || '';
 
-router.post('/forgot-password/reset', async (req, res) => {
-  const { userId, code, newPassword, confirmPassword } = req.body as {
-    userId?: string;
-    code?: string;
-    newPassword?: string;
-    confirmPassword?: string;
-  };
+    if (!cleanId || !cleanCode || !cleanNew) {
+      res.status(400).json({ error: 'All password reset fields are required.' });
+      return;
+    }
 
-  const cleanId = (userId || '').trim().toUpperCase();
-  const cleanCode = (code || '').trim();
-  const cleanNew = newPassword || '';
-  const cleanConfirm = confirmPassword || '';
+    if (cleanNew.length < 6) {
+      res
+        .status(400)
+        .json({ error: 'New password must be at least 6 characters.' });
+      return;
+    }
 
-  if (!cleanId || !cleanCode || !cleanNew) {
-    res.status(400).json({ error: 'All password reset fields are required.' });
-    return;
-  }
+    if (cleanNew !== cleanConfirm) {
+      res.status(400).json({ error: 'Passwords do not match.' });
+      return;
+    }
 
-  if (cleanNew.length < 6) {
-    res
-      .status(400)
-      .json({ error: 'New password must be at least 6 characters.' });
-    return;
-  }
+    const db = getDb();
+    const entry = db.resetCodes?.[cleanId];
+    if (!entry || entry.code !== cleanCode || Date.now() > entry.expiresAt) {
+      res
+        .status(400)
+        .json({ error: 'Invalid or expired verification code.' });
+      return;
+    }
 
-  if (cleanNew !== cleanConfirm) {
-    res.status(400).json({ error: 'Passwords do not match.' });
-    return;
-  }
+    const user = db.users.find((u) => u.userId.toUpperCase() === cleanId);
+    if (!user) {
+      res.status(404).json({ error: 'User account not found.' });
+      return;
+    }
 
-  const entry = pendingResetCodes.get(cleanId);
-  if (!entry || entry.code !== cleanCode || Date.now() > entry.expiresAt) {
-    res
-      .status(400)
-      .json({ error: 'Invalid or expired verification code.' });
-    return;
-  }
+    user.passwordHash = await bcrypt.hash(cleanNew, 10);
+    user.updatedAt = new Date().toISOString();
+    // Revoke existing sessions on password reset
+    db.sessions = db.sessions.filter((s) => s.userId.toUpperCase() !== cleanId);
+    if (db.resetCodes) {
+      delete db.resetCodes[cleanId];
+    }
+    appendActivity(
+      'Password Reset',
+      user.fullName,
+      user.role,
+      `Completed password reset for ${user.userId}`
+    );
+    await saveDb();
 
-  const db = getDb();
-  const user = db.users.find((u) => u.userId.toUpperCase() === cleanId);
-  if (!user) {
-    res.status(404).json({ error: 'User account not found.' });
-    return;
-  }
+    res.json({ message: 'Password has been reset successfully.' });
+  })
+);
 
-  user.passwordHash = await bcrypt.hash(cleanNew, 10);
-  user.updatedAt = new Date().toISOString();
-  // Revoke existing sessions on password reset
-  db.sessions = db.sessions.filter((s) => s.userId.toUpperCase() !== cleanId);
-  pendingResetCodes.delete(cleanId);
-  appendActivity(
-    'Password Reset',
-    user.fullName,
-    user.role,
-    `Completed password reset for ${user.userId}`
-  );
-  await saveDb();
-
-  res.json({ message: 'Password has been reset successfully.' });
-});
-
-router.post('/logout', authenticateToken, async (req: AuthenticatedRequest, res) => {
-  const db = getDb();
-  db.sessions = db.sessions.filter((s) => s.sessionId !== req.sessionId);
-  await saveDb();
-  res.json({ message: 'Logged out successfully.' });
-});
+router.post(
+  '/logout',
+  authenticateToken,
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
+    const db = getDb();
+    db.sessions = db.sessions.filter((s) => s.sessionId !== req.sessionId);
+    await saveDb();
+    res.json({ message: 'Logged out successfully.' });
+  })
+);
 
 router.get('/me', authenticateToken, (req: AuthenticatedRequest, res) => {
   const db = getDb();
@@ -366,7 +394,10 @@ router.get('/me', authenticateToken, (req: AuthenticatedRequest, res) => {
   });
 });
 
-router.put('/profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
+router.put(
+  '/profile',
+  authenticateToken,
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
   const { fullName, email, phone } = req.body as {
     fullName?: string;
     email?: string;
@@ -412,12 +443,12 @@ router.put('/profile', authenticateToken, async (req: AuthenticatedRequest, res)
   await saveDb();
 
   res.json({ user: sanitizeUser(user) });
-});
+}));
 
 router.put(
   '/change-password',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body as {
       currentPassword?: string;
       newPassword?: string;
@@ -463,7 +494,7 @@ router.put(
     await saveDb();
 
     res.json({ message: 'Password updated successfully.' });
-  }
+  })
 );
 
 router.get('/sessions', authenticateToken, (req: AuthenticatedRequest, res) => {
@@ -482,7 +513,7 @@ router.get('/sessions', authenticateToken, (req: AuthenticatedRequest, res) => {
 router.delete(
   '/sessions/:sessionId',
   authenticateToken,
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { sessionId } = req.params;
     const db = getDb();
     const target = db.sessions.find((s) => s.sessionId === sessionId);
@@ -498,7 +529,7 @@ router.delete(
     db.sessions = db.sessions.filter((s) => s.sessionId !== sessionId);
     await saveDb();
     res.json({ message: 'Session revoked.' });
-  }
+  })
 );
 
 router.get(
@@ -515,7 +546,7 @@ router.post(
   '/admin-users',
   authenticateToken,
   requireRole('ADMIN'),
-  async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res) => {
     const { userId, fullName, email, phone, password } = req.body as {
       userId?: string;
       fullName?: string;
@@ -580,7 +611,7 @@ router.post(
     await saveDb();
 
     res.status(201).json({ user: sanitizeUser(adminUser) });
-  }
+  })
 );
 
 export default router;

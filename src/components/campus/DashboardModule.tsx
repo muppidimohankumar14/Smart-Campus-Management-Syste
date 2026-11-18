@@ -379,7 +379,7 @@ export function DashboardModule({ user, onNavigate }: DashboardModuleProps) {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            NANI CAMPUS Administration Dashboard
+            SMART CAMPUS Administration Dashboard
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Institutional metrics across admissions, attendance, classrooms, and examinations.

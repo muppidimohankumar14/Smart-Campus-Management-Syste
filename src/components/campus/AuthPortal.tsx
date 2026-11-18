@@ -230,7 +230,7 @@ export function AuthPortal({
         {!campusImgError ? (
           <img
             src="/src/assets/images/login_campus_courtyard_1794838748826.jpg"
-            alt="NANI CAMPUS university administration building"
+            alt="SMART CAMPUS university administration building"
             referrerPolicy="no-referrer"
             onError={() => setCampusImgError(true)}
             className="absolute inset-0 h-full w-full object-cover"
@@ -246,7 +246,7 @@ export function AuthPortal({
           {!crestImgError ? (
             <img
               src="/src/assets/images/smart_campus_crest_1794839688853.jpg"
-              alt="NANI CAMPUS Crest"
+              alt="SMART CAMPUS Crest"
               referrerPolicy="no-referrer"
               onError={() => setCrestImgError(true)}
               className="h-11 w-11 rounded-xl object-cover ring-1 ring-white/30"
@@ -258,7 +258,7 @@ export function AuthPortal({
           )}
           <div>
             <span className="font-display text-lg font-bold tracking-tight text-white">
-              NANI CAMPUS
+              SMART CAMPUS
             </span>
             <p className="text-xs text-blue-200">
               College Management & Academic ERP
@@ -299,12 +299,12 @@ export function AuthPortal({
           <div className="flex items-center gap-3 lg:hidden">
             <img
               src="/src/assets/images/smart_campus_crest_1794839688853.jpg"
-              alt="NANI CAMPUS Logo"
+              alt="SMART CAMPUS Logo"
               referrerPolicy="no-referrer"
               className="h-9 w-9 rounded-lg object-cover"
             />
             <span className="font-display text-base font-bold text-[#0B1F3A] dark:text-white">
-              NANI CAMPUS
+              SMART CAMPUS
             </span>
           </div>
           <div className="hidden lg:block" />
@@ -335,13 +335,13 @@ export function AuthPortal({
               <div className="flex items-center gap-3">
                 <img
                   src="/src/assets/images/smart_campus_crest_1794839688853.jpg"
-                  alt="NANI CAMPUS Institutional Logo"
+                  alt="SMART CAMPUS Institutional Logo"
                   referrerPolicy="no-referrer"
                   className="hidden h-11 w-11 rounded-xl object-cover sm:block"
                 />
                 <div>
                   <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                    NANI CAMPUS Login
+                    SMART CAMPUS Login
                   </h2>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
                     Sign in with your Administrator or Student User ID.
@@ -582,7 +582,7 @@ export function AuthPortal({
                         type="email"
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
-                        placeholder="liam@nanicampus.edu"
+                        placeholder="liam@smartcampus.edu"
                         className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                       />
                     </div>
@@ -748,7 +748,7 @@ export function AuthPortal({
                       type="email"
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
-                      placeholder="aarav.sharma@nanicampus.edu"
+                      placeholder="aarav.sharma@smartcampus.edu"
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                     />
                   </div>
@@ -837,7 +837,7 @@ export function AuthPortal({
         </div>
 
         <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-          NANI CAMPUS · Protected Academic ERP · Northbridge Institute of Technology
+          SMART CAMPUS · Protected Academic ERP · Northbridge Institute of Technology
         </p>
       </div>
     </div>

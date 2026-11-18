@@ -168,7 +168,7 @@ export function CampusShell({
           {!crestError ? (
             <img
               src="/src/assets/images/smart_campus_crest_1794839688853.jpg"
-              alt="NANI CAMPUS Logo"
+              alt="SMART CAMPUS Logo"
               referrerPolicy="no-referrer"
               onError={() => setCrestError(true)}
               className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-white/20"
@@ -180,7 +180,7 @@ export function CampusShell({
           )}
           <div>
             <span className="block font-display text-sm font-bold tracking-tight text-white">
-              NANI CAMPUS
+              SMART CAMPUS
             </span>
             <span className="block text-[11px] text-blue-200/80">
               {user.role === 'ADMIN' ? 'Admin Console' : 'Student Portal'}
@@ -238,7 +238,7 @@ export function CampusShell({
       <div className="border-t border-white/10 p-3.5">
         <div className="mb-3 flex items-center gap-3 px-1">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-display text-xs font-bold text-white">
-            {initials || 'NC'}
+            {initials || 'SC'}
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-white">
@@ -296,7 +296,7 @@ export function CampusShell({
             </button>
             <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
               <span className="hidden text-slate-500 sm:inline dark:text-slate-400">
-                NANI CAMPUS
+                SMART CAMPUS
               </span>
               <span
                 aria-hidden="true"

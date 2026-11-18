@@ -214,6 +214,7 @@ export interface DatabasePayload {
   results: ExamResultRecord[];
   notifications: NotificationRecord[];
   activities: ActivityLog[];
+  resetCodes?: Record<string, { code: string; expiresAt: number }>;
 }
 
 export type NavModule =

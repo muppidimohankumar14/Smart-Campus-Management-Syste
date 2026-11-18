@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { getDb } from '../db';
+import { getDb, isProductionRuntime } from '../db';
 import { UserAccount, UserRole } from '../../src/types/campus';
 
 export interface AuthenticatedRequest extends Request {
@@ -9,10 +9,18 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export function getJwtSecret(): string {
-  return (
-    process.env.JWT_SECRET?.trim() ||
-    'smart_campus_dev_jwt_secret_change_in_production'
-  );
+  const envSecret = process.env.JWT_SECRET?.trim();
+  if (envSecret) {
+    return envSecret;
+  }
+
+  if (isProductionRuntime()) {
+    throw new Error(
+      'JWT_SECRET environment variable is required in production.'
+    );
+  }
+
+  return 'smart_campus_dev_jwt_secret_change_in_production';
 }
 
 export interface JwtPayloadData {
@@ -45,8 +53,20 @@ export function authenticateToken(
     return;
   }
 
+  let jwtSecret: string;
   try {
-    const decoded = jwt.verify(token, getJwtSecret()) as JwtPayloadData;
+    jwtSecret = getJwtSecret();
+  } catch (err) {
+    console.error(
+      '[SMART CAMPUS AUTH] Configuration error:',
+      err instanceof Error ? err.message : err
+    );
+    res.status(500).json({ error: 'Server authentication configuration error.' });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayloadData;
     const db = getDb();
 
     const activeSession = db.sessions.find(
